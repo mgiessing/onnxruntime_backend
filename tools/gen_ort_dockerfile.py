@@ -72,28 +72,23 @@ ENV DEBIAN_FRONTEND=noninteractive
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh. We don't run
 # that script directly because we don't want cmake installed from that
 # file. 
-'''
-    dependencies = [
-        "wget",
-        "zip",
-        "ca-certificates",
-        "build-essential",
-        "cmake",
-        "curl",
-        "libcurl4-openssl-dev",
-        "libssl-dev", 
-        "patchelf", 
-        "python3-dev", 
-        "python3-pip",
-        "git", 
-        "gnupg", 
-        "gnupg1"]
-    # importing module and appending path
-    import sys
-    sys.path.append(FLAGS.common_repo_path + '/tools/')
-    import add_dependencies as ad
-    df += ad.add_dependencies(FLAGS.triton_container, dependencies)
-    df += '''   
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        wget \
+        zip \
+        ca-certificates \
+        build-essential \
+        cmake \
+        curl \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        patchelf \
+        python3-dev \
+        python3-pip \
+        git \
+        gnupg \ 
+        gnupg1
+
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh \
          -O ~/miniconda.sh --no-check-certificate && \
     /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
@@ -302,8 +297,8 @@ RUN git clone -b rel-%ONNXRUNTIME_VERSION% --recursive %ONNXRUNTIME_REPO% onnxru
             ep_flags += ' --use_tensorrt'
             if FLAGS.tensorrt_home is not None:
                 ep_flags += ' --tensorrt_home "{}"'.format(FLAGS.tensorrt_home)
-        if FLAGS.ort_openvino is not None:
-            ep_flags += ' --use_openvino CPU_FP32'
+    if FLAGS.ort_openvino is not None:
+        ep_flags += ' --use_openvino CPU_FP32'
 
     df += '''
 WORKDIR /workspace/onnxruntime
@@ -422,13 +417,8 @@ if __name__ == '__main__':
                         required=False,
                         help='Home directory for TensorRT.')
     
-    parser.add_argument('--common-repo-path',
-                        type=str,
-                        required=True,
-                        help='Path for add_dependencies.py.')
-
     FLAGS = parser.parse_args()
-    
+
     if target_platform() == 'windows':
         # OpenVINO EP not yet supported for windows build
         if FLAGS.ort_openvino is not None:
