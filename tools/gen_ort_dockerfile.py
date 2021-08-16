@@ -115,7 +115,8 @@ ARG ONNXRUNTIME_REPO
 
 RUN git clone -b rel-${ONNXRUNTIME_VERSION} --recursive ${ONNXRUNTIME_REPO} onnxruntime && \
     (cd onnxruntime && git submodule update --init --recursive)
-
+# Checkout onnx-tensorrt 8.0, because MYELIN was removed which is in CMakeList Version 7.2.1 which is checked out
+RUN cd /workspace/onnxruntime/cmake/external/onnx-tensorrt && git checkout release/8.0
 '''
 
     ep_flags = '--use_cuda'
