@@ -389,6 +389,9 @@ if __name__ == '__main__':
         if FLAGS.cuda_home is None:
             FLAGS.cuda_home = '/usr/local/cuda'
 
+        if FLAGS.cudnn_home is None:
+            FLAGS.cudnn_home = '/usr/lib64'
+        
         if (FLAGS.cuda_home is None) or (FLAGS.cudnn_home is None):
             print("error: linux build requires --cudnn-home and --cuda-home")
 
