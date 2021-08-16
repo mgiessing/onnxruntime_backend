@@ -61,8 +61,6 @@ WORKDIR /workspace
 def dockerfile_for_linux(output_file):
     df = dockerfile_common()
     df += '''
-# Ensure apt-get won't prompt for selecting options
-ENV DEBIAN_FRONTEND=noninteractive
 
 # The Onnx Runtime dockerfile is the collection of steps in
 # https://github.com/microsoft/onnxruntime/tree/master/dockerfiles
@@ -71,19 +69,22 @@ ENV DEBIAN_FRONTEND=noninteractive
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh. We don't run
 # that script directly because we don't want cmake installed from that
 # file.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN dnf groupinstall -y "Development Tools"
+RUN dnf install -y \
         wget \
         zip \
         ca-certificates \
-        build-essential \
         cmake \
         curl \
-        libcurl4-openssl-dev \
-        libssl-dev \
-        patchelf \
-        python3-dev \
-        python3-pip
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh \
+        libcurl-devel \
+        openssl-devel \
+        python38-devel \
+        python38-pip
+
+# Is there a better way to get patchelf for ppc64le rpm?
+RUN wget https://rpmfind.net/linux/epel/8/Everything/ppc64le/Packages/p/patchelf-0.12-1.el8.ppc64le.rpm && rpm -i patchelf-0.12-1.el8.ppc64le.rpm
+
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-ppc64le.sh \
          -O ~/miniconda.sh --no-check-certificate && \
     /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
     rm ~/miniconda.sh && \
@@ -100,30 +101,9 @@ RUN _CUDNN_VERSION=$(echo $CUDNN_VERSION | cut -d. -f1-2) && \
 
     if FLAGS.ort_openvino is not None:
         df += '''
-# Install OpenVINO
-ARG ONNXRUNTIME_OPENVINO_VERSION
-ENV INTEL_OPENVINO_DIR /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}
-ENV LD_LIBRARY_PATH $INTEL_OPENVINO_DIR/deployment_tools/inference_engine/lib/intel64:$INTEL_OPENVINO_DIR/deployment_tools/ngraph/lib:$INTEL_OPENVINO_DIR/deployment_tools/inference_engine/external/tbb/lib:/usr/local/openblas/lib:$LD_LIBRARY_PATH
-ENV PYTHONPATH $INTEL_OPENVINO_DIR/tools:$PYTHONPATH
-ENV IE_PLUGINS_PATH $INTEL_OPENVINO_DIR/deployment_tools/inference_engine/lib/intel64
-ENV InferenceEngine_DIR=$INTEL_OPENVINO_DIR/deployment_tools/inference_engine/share
-ENV ngraph_DIR=$INTEL_OPENVINO_DIR/deployment_tools/ngraph/cmake
-
-RUN wget https://apt.repos.intel.com/openvino/2021/GPG-PUB-KEY-INTEL-OPENVINO-2021 && \
-    apt-key add GPG-PUB-KEY-INTEL-OPENVINO-2021 && rm GPG-PUB-KEY-INTEL-OPENVINO-2021 && \
-    cd /etc/apt/sources.list.d && \
-    echo "deb https://apt.repos.intel.com/openvino/2021 all main">intel-openvino-2021.list && \
-    apt update && \
-    apt install -y intel-openvino-dev-ubuntu20-${ONNXRUNTIME_OPENVINO_VERSION} && \
-    cd ${INTEL_OPENVINO_DIR}/install_dependencies && ./install_openvino_dependencies.sh
-
-ARG INTEL_COMPUTE_RUNTIME_URL=https://github.com/intel/compute-runtime/releases/download/19.41.14441
-RUN wget ${INTEL_COMPUTE_RUNTIME_URL}/intel-gmmlib_19.3.2_amd64.deb && \
-    wget ${INTEL_COMPUTE_RUNTIME_URL}/intel-igc-core_1.0.2597_amd64.deb && \
-    wget ${INTEL_COMPUTE_RUNTIME_URL}/intel-igc-opencl_1.0.2597_amd64.deb && \
-    wget ${INTEL_COMPUTE_RUNTIME_URL}/intel-opencl_19.41.14441_amd64.deb && \
-    wget ${INTEL_COMPUTE_RUNTIME_URL}/intel-ocloc_19.41.14441_amd64.deb && \
-    dpkg -i *.deb && rm -rf *.deb
+###
+# OpenVINO is not available for ppc64le
+###
 '''
 
     df += '''
@@ -208,38 +188,10 @@ RUN cp /workspace/onnxruntime/include/onnxruntime/core/providers/tensorrt/tensor
 
     if FLAGS.ort_openvino is not None:
         df += '''
-# OpenVino specific headers and libraries
-RUN cp -r /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/licensing \
-       /opt/onnxruntime/LICENSE.openvino
-
-RUN cp /workspace/onnxruntime/include/onnxruntime/core/providers/openvino/openvino_provider_factory.h \
-       /opt/onnxruntime/include
-
-RUN cp /workspace/build/Release/libonnxruntime_providers_openvino.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/lib/intel64/libinference_engine.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/lib/intel64/libinference_engine_legacy.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/lib/intel64/libinference_engine_transformations.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/ngraph/lib/libngraph.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/ngraph/lib/libonnx_importer.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/external/tbb/lib/libtbb.so.2 \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/lib/intel64/plugins.xml \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/lib/intel64/libMKLDNNPlugin.so \
-       /opt/onnxruntime/lib && \
-    cp /opt/intel/openvino_${ONNXRUNTIME_OPENVINO_VERSION}/deployment_tools/inference_engine/lib/intel64/libinference_engine_lp_transformations.so \
-       /opt/onnxruntime/lib && \
-    (cd /opt/onnxruntime/lib && \
-     chmod a-x * && \
-     ln -sf libtbb.so.2 libtbb.so)
+###
+# OpenVINO is not available for ppc64le
+###
 '''
-
     df += '''
 RUN cd /opt/onnxruntime/lib && \
     for i in `find . -mindepth 1 -maxdepth 1 -type f -name '*\.so*'`; do \
