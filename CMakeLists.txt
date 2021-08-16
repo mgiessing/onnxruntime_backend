@@ -123,7 +123,7 @@ else()
   endif()
 
   if(NOT TRITON_BUILD_CONTAINER)
-    set(TRITON_BUILD_CONTAINER "docker.io/nvidia/cuda-ppc64le:11.2.2-cudnn8-devel")
+    set(TRITON_BUILD_CONTAINER "docker.io/nvidia/cuda-ppc64le:11.3.1-cudnn8-devel")
   endif()
 
   set(TRITON_ONNXRUNTIME_DOCKER_IMAGE "tritonserver_onnxruntime")
