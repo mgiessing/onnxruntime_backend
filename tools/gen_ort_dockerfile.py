@@ -88,7 +88,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-ppc
     /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
     rm ~/miniconda.sh && \
     /opt/miniconda/bin/conda clean -ya
-
+RUN pip3 install --upgrade pip && pip install make cmake
 # Allow configure to pick up cuDNN where it expects it.
 # (Note: $CUDNN_VERSION is defined by base image)
 RUN _CUDNN_VERSION=$(echo $CUDNN_VERSION | cut -d. -f1-2) && \
