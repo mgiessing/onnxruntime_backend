@@ -70,7 +70,7 @@ project(tritononnxruntimebackend LANGUAGES C CXX)
 option(TRITON_ENABLE_GPU "Enable GPU support in backend" ON)
 option(TRITON_ENABLE_STATS "Include statistics collections in backend" ON)
 option(TRITON_ENABLE_ONNXRUNTIME_TENSORRT
-  "Enable TensorRT execution provider for ONNXRuntime backend in server" OFF)
+  "Enable TensorRT execution provider for ONNXRuntime backend in server" ON)
 option(TRITON_ENABLE_ONNXRUNTIME_OPENVINO
   "Enable OpenVINO execution provider for ONNXRuntime backend in server" OFF)
 set(TRITON_BUILD_CONTAINER "" CACHE STRING "Triton container to use a base for build")
