@@ -114,7 +114,7 @@ ARG ONNXRUNTIME_VERSION
 ARG ONNXRUNTIME_REPO
 
 RUN git clone -b rel-${ONNXRUNTIME_VERSION} --recursive ${ONNXRUNTIME_REPO} onnxruntime && \
-    (cd onnxruntime && git submodule update --init --recursive)
+    (cd onnxruntime/cmake/external/onnx-tensorrt && git checkout release/8.0)
 
 '''
 
