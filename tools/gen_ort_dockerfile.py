@@ -68,32 +68,23 @@ WORKDIR /workspace
 def dockerfile_for_linux(output_file):
     df = dockerfile_common()
     df += '''
-# Ensure apt-get won't prompt for selecting options
-ENV DEBIAN_FRONTEND=noninteractive
-
 # The Onnx Runtime dockerfile is the collection of steps in
 # https://github.com/microsoft/onnxruntime/tree/master/dockerfiles
 
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
 # Dependencies: cmake. ORT requires min version 3.18. Currently ORT uses 3.21 so keeping the version in sync.
-Run wget --quiet https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.tar.gz && \
-    tar zxf cmake-3.21.0-linux-x86_64.tar.gz && \
-    rm -rf cmake-3.21.0-linux-x86_64.tar.gz
-ENV PATH /workspace/cmake-3.21.0-linux-x86_64/bin:${PATH}
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN dnf groupinstall -y "Development Tools" && dnf install -y epel-release
+RUN dnf update -y && dnf install -y \
         wget \
         zip \
         ca-certificates \
-        build-essential \
-        curl \
-        libcurl4-openssl-dev \
-        libssl-dev \
+        libcurl-devel \
+        openssl-devel \
         patchelf \
-        python3-dev \
-        python3-pip
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh \
+        python38-devel \
+        python38-pip
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-ppc64le.sh \
          -O ~/miniconda.sh --no-check-certificate && \
     /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
     rm ~/miniconda.sh && \
@@ -473,6 +464,9 @@ if __name__ == '__main__':
         if FLAGS.cuda_home is None:
             FLAGS.cuda_home = '/usr/local/cuda'
 
+        if FLAGS.cudnn_home is None:
+            FLAGS.cudnn_home = '/usr/lib64'
+            
         if (FLAGS.cuda_home is None) or (FLAGS.cudnn_home is None):
             print("error: linux build requires --cudnn-home and --cuda-home")
 
