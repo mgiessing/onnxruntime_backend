@@ -75,7 +75,7 @@ def dockerfile_for_linux(output_file):
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
 # Dependencies: cmake. ORT requires min version 3.18. Currently ORT uses 3.21 so keeping the version in sync.
 RUN dnf groupinstall -y "Development Tools" && dnf install -y epel-release
-RUN dnf update -y && dnf install -y \
+RUN dnf install -y \
         wget \
         zip \
         ca-certificates \
