@@ -123,7 +123,7 @@ else()
   endif()
 
   if(NOT TRITON_BUILD_CONTAINER)
-    set(TRITON_BUILD_CONTAINER "nvcr.io/nvidia/tritonserver:${TRITON_BUILD_CONTAINER_VERSION}-py3-min")
+    set(TRITON_BUILD_CONTAINER "docker.io/mgiessing/cuda-ppc64le:11.3.1-cudnn8-tensorrt8-centos8-devel")
   endif()
 
   set(TRITON_ONNXRUNTIME_DOCKER_IMAGE "tritonserver_onnxruntime")

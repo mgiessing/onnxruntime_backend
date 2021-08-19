@@ -83,7 +83,9 @@ RUN dnf update -y && dnf install -y \
         openssl-devel \
         patchelf \
         python38-devel \
-        python38-pip
+        python38-pip \
+        cmake
+
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-ppc64le.sh \
          -O ~/miniconda.sh --no-check-certificate && \
     /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
