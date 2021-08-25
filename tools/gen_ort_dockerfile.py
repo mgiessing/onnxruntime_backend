@@ -61,9 +61,6 @@ WORKDIR /workspace
 def dockerfile_for_linux(output_file):
     df = dockerfile_common()
     df += '''
-# Ensure apt-get won't prompt for selecting options
-ENV DEBIAN_FRONTEND=noninteractive
-
 # The Onnx Runtime dockerfile is the collection of steps in
 # https://github.com/microsoft/onnxruntime/tree/master/dockerfiles
 
@@ -71,19 +68,19 @@ ENV DEBIAN_FRONTEND=noninteractive
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh. We don't run
 # that script directly because we don't want cmake installed from that
 # file.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN dnf groupinstall -y "Development Tools" && dnf install -y epel-release
+RUN dnf update && dnf install -y \
         wget \
         zip \
         ca-certificates \
-        build-essential \
         cmake \
         curl \
-        libcurl4-openssl-dev \
-        libssl-dev \
+        libcurl-devel \
+        openssl-devel \
         patchelf \
-        python3-dev \
-        python3-pip
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh \
+        python38-devel \
+        python38-pip
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-ppc64le.sh \
          -O ~/miniconda.sh --no-check-certificate && \
     /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
     rm ~/miniconda.sh && \
