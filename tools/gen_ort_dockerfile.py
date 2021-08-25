@@ -69,7 +69,7 @@ def dockerfile_for_linux(output_file):
 # that script directly because we don't want cmake installed from that
 # file.
 RUN dnf groupinstall -y "Development Tools" && dnf install -y epel-release
-RUN dnf update && dnf install -y \
+RUN dnf update -y && dnf install -y \
         wget \
         zip \
         ca-certificates \
