@@ -70,7 +70,7 @@ project(tritononnxruntimebackend LANGUAGES C CXX)
 #   - If you want to disable GPU usage, set TRITON_ENABLE_GPU=OFF. 
 #    This will make builds with CUDA and TensorRT flags to fail. 
 #
-option(TRITON_ENABLE_GPU "Enable GPU support in backend" ON)
+option(TRITON_ENABLE_GPU "Enable GPU support in backend" OFF)
 option(TRITON_ENABLE_STATS "Include statistics collections in backend" ON)
 option(TRITON_ENABLE_ONNXRUNTIME_TENSORRT
   "Enable TensorRT execution provider for ONNXRuntime backend in server" OFF)
@@ -132,7 +132,7 @@ else()
   endif()
 
   if(NOT TRITON_BUILD_CONTAINER)
-    set(TRITON_BUILD_CONTAINER "nvcr.io/nvidia/tritonserver:${TRITON_BUILD_CONTAINER_VERSION}-py3-min")
+    set(TRITON_BUILD_CONTAINER "docker.io/ubuntu:20.04")
   endif()
 
   set(TRITON_ONNXRUNTIME_DOCKER_IMAGE "tritonserver_onnxruntime")

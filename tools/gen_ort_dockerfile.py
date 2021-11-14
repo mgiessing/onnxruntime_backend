@@ -65,7 +65,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # The Onnx Runtime dockerfile is the collection of steps in
 # https://github.com/microsoft/onnxruntime/tree/master/dockerfiles
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
         software-properties-common \
         wget \
@@ -82,17 +81,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg \ 
         gnupg1
 
+RUN wget https://public.dhe.ibm.com/software/server/POWER/Linux/toolchain/at/ubuntu/dists/focal/6976a827.gpg.key && \
+    apt-key add 6976a827.gpg.key && \
+    echo "deb https://public.dhe.ibm.com/software/server/POWER/Linux/toolchain/at/ubuntu focal at15.0" >> /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y advance-toolchain-at15.0-runtime \
+    advance-toolchain-at15.0-devel \
+    advance-toolchain-at15.0-perf \
+    advance-toolchain-at15.0-mcore-libs
+
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | \
-      gpg --dearmor - |  \
-      tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null && \
-    apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-      cmake-data=3.21.1-0kitware1ubuntu20.04.1 cmake=3.21.1-0kitware1ubuntu20.04.1 && \
-    cmake --version
-
+RUN pip3 install make cmake
 '''
     if FLAGS.enable_gpu:
         df += '''
@@ -183,7 +183,7 @@ ARG COMMON_BUILD_ARGS="--config Release --skip_submodule_sync --parallel --build
 '''
 
     df += '''
-RUN ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
+RUN PATH=/opt/at15.0/bin:/opt/at15.0/sbin/:$PATH CMAKE_PREFIX_PATH=/opt/at15.0/ ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
 '''.format(ep_flags)
 
     df += '''
