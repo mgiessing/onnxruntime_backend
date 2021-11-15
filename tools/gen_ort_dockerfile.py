@@ -81,15 +81,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg \ 
         gnupg1
 
-RUN wget https://public.dhe.ibm.com/software/server/POWER/Linux/toolchain/at/ubuntu/dists/focal/6976a827.gpg.key && \
-    apt-key add 6976a827.gpg.key && \
-    echo "deb https://public.dhe.ibm.com/software/server/POWER/Linux/toolchain/at/ubuntu focal at15.0" >> /etc/apt/sources.list
-
-RUN apt-get update && apt-get install -y advance-toolchain-at15.0-runtime \
-    advance-toolchain-at15.0-devel \
-    advance-toolchain-at15.0-perf \
-    advance-toolchain-at15.0-mcore-libs
-
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
 RUN pip3 install make cmake
@@ -183,7 +174,7 @@ ARG COMMON_BUILD_ARGS="--config Release --skip_submodule_sync --parallel --build
 '''
 
     df += '''
-RUN PATH=/opt/at15.0/bin:/opt/at15.0/sbin/:$PATH CMAKE_PREFIX_PATH=/opt/at15.0/ ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
+RUN ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
 '''.format(ep_flags)
 
     df += '''

@@ -132,7 +132,7 @@ else()
   endif()
 
   if(NOT TRITON_BUILD_CONTAINER)
-    set(TRITON_BUILD_CONTAINER "docker.io/ubuntu:20.04")
+    set(TRITON_BUILD_CONTAINER "docker.io/ubuntu:21.04")
   endif()
 
   set(TRITON_ONNXRUNTIME_DOCKER_IMAGE "tritonserver_onnxruntime")
