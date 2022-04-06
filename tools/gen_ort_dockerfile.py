@@ -92,9 +92,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-pip \
         git \
         gnupg \ 
-        gnupg1 \
-	make \
-	cmake
+        gnupg1
+
+RUN pip3 install make cmake
 
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
