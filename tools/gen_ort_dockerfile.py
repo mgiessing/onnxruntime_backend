@@ -63,7 +63,8 @@ ARG ONNXRUNTIME_OPENVINO_VERSION={}
 '''.format(FLAGS.ort_openvino)
 
     df += '''
-FROM ${BASE_IMAGE}
+#FROM ${BASE_IMAGE}
+FROM ubuntu:22.04
 WORKDIR /workspace
 '''
     return df
@@ -93,11 +94,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         gnupg \ 
         gnupg1
-        
-RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-	apt-get install build-essential gcc-11 g++-11 -y && \
-	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 && \
-	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 110
 
 RUN pip3 install make cmake
 
