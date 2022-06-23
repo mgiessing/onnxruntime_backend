@@ -63,8 +63,7 @@ ARG ONNXRUNTIME_OPENVINO_VERSION={}
 '''.format(FLAGS.ort_openvino)
 
     df += '''
-#FROM ${BASE_IMAGE}
-FROM ubuntu:20.04
+FROM ${BASE_IMAGE}
 WORKDIR /workspace
 '''
     return df
