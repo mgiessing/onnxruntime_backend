@@ -63,7 +63,7 @@ ARG ONNXRUNTIME_OPENVINO_VERSION={}
 '''.format(FLAGS.ort_openvino)
 
     df += '''
-FROM ${BASE_IMAGE}
+FROM almalinux:8
 WORKDIR /workspace
 '''
     return df
@@ -78,32 +78,21 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The Onnx Runtime dockerfile is the collection of steps in
 # https://github.com/microsoft/onnxruntime/tree/master/dockerfiles
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        software-properties-common \
+RUN dnf update -y && dnf groupinstall -y "Development Tools" && dnf install -y epel-release && dnf install -y  \
         wget \
         zip \
         ca-certificates \
-        build-essential \
         curl \
-        libcurl4-openssl-dev \
-        libssl-dev \
+        openssl-devel \
         patchelf \
-        python3-dev \
+        python3-devel \
         python3-pip \
         git \
         gnupg \ 
-        gnupg1
+        gnupg1 gcc-toolset-10 && pip3 install --upgrade pip && pip3 install make cmake==3.21.1
 
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | \
-      gpg --dearmor - |  \
-      tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null && \
-    apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-      cmake-data=3.21.1-0kitware1ubuntu20.04.1 cmake=3.21.1-0kitware1ubuntu20.04.1 && \
-    cmake --version
 
 '''
     if FLAGS.enable_gpu:
@@ -232,7 +221,7 @@ RUN sed -i 's/set_target_properties(onnxruntime PROPERTIES VERSION ${ORT_VERSION
 '''
 
     df += '''
-RUN ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
+RUN source /opt/rh/gcc-toolset-10/enable && ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
 '''.format(ep_flags)
 
     df += '''
