@@ -89,7 +89,7 @@ RUN dnf update -y && dnf groupinstall -y "Development Tools" && dnf install -y e
         python3-pip \
         git \
         gnupg \ 
-        gnupg1 gcc-toolset-10 && pip3 install --upgrade pip && pip3 install make cmake==3.21.1
+        gnupg1 gcc-toolset-10 && pip3 install --upgrade pip && pip3 install make cmake==3.25.2
 
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
