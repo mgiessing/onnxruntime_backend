@@ -94,9 +94,6 @@ RUN dnf update -y && dnf groupinstall -y "Development Tools" && dnf install -y e
 
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
-RUN apt update && apt install -y gpg wget && \
-        cmake --version
-
 '''
     if FLAGS.enable_gpu:
         df += '''
