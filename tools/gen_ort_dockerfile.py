@@ -68,7 +68,7 @@ ARG ONNXRUNTIME_OPENVINO_VERSION={}
         )
 
     df += """
-FROM ${BASE_IMAGE}
+FROM almalinux:8
 WORKDIR /workspace
 """
     return df
@@ -83,33 +83,24 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The Onnx Runtime dockerfile is the collection of steps in
 # https://github.com/microsoft/onnxruntime/tree/master/dockerfiles
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        software-properties-common \
+RUN dnf update -y && dnf groupinstall -y "Development Tools" && dnf install -y epel-release && dnf install -y  \
         wget \
         zip \
         ca-certificates \
-        build-essential \
         curl \
-        libcurl4-openssl-dev \
-        libssl-dev \
+        openssl-devel \
         patchelf \
-        python3-dev \
+        python3-devel \
         python3-pip \
         git \
         gnupg \
-        gnupg1
+        gnupg1 gcc-toolset-10 && pip3 install --upgrade pip && pip3 install make cmake==3.26.3
 
 # Install dependencies from
 # onnxruntime/dockerfiles/scripts/install_common_deps.sh.
 RUN apt update -q=2 \\
     && apt install -y gpg wget \\
-    && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - |  tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \\
-    && . /etc/os-release \\
-    && echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $UBUNTU_CODENAME main" | tee /etc/apt/sources.list.d/kitware.list >/dev/null \\
-    && apt-get update -q=2 \\
-    && apt-get install -y --no-install-recommends cmake=3.27.7* cmake-data=3.27.7* \\
-    && cmake --version
-
+    cmake --version
 """
     if FLAGS.enable_gpu:
         df += """
@@ -243,7 +234,7 @@ ARG COMMON_BUILD_ARGS="--config ${{ONNXRUNTIME_BUILD_CONFIG}} --skip_submodule_s
     )
 
     df += """
-RUN ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
+RUN source /opt/rh/gcc-toolset-10/enable && ./build.sh ${{COMMON_BUILD_ARGS}} --update --build {}
 """.format(
         ep_flags
     )
